@@ -8,6 +8,112 @@ let gameLevels = []; // Will be populated by setupLevels
 let collectedKeys = {}; // Object to store collected keys { keyName: true }
 let gameState = "intro"; // Added game state variable with default state
 
+// Multiple question sets and randomization
+const RANDOM_SET_ENABLED = true; // Set to false to disable randomization
+const TOTAL_SETS = 8; // Increased from 3 to 8 sets
+
+// Level 2 - Word Unscramble - Multiple sets
+const WORD_SETS = [
+    { scrambled: "NXSUE_OWND", correct: "NEXUS_DOWN" },
+    { scrambled: "ODCE_ALPEH", correct: "CODE_ALPHA" },
+    { scrambled: "RHCBAEE_XIT", correct: "BREACH_EXIT" },
+    { scrambled: "CHOEV_PTRA", correct: "ECHO_TRAP" },
+    { scrambled: "RYPCOT_CKHA", correct: "CRYPTO_HACK" },
+    { scrambled: "RETNWOK_KRHAC", correct: "NETWORK_HACK" },
+    { scrambled: "TERIFAY_RBOECH", correct: "FIREWALL_BREACH" },
+    { scrambled: "VEROR_DAET", correct: "OVERRIDE_DATA" }
+];
+
+// Level 4 - Binary Tree - Multiple sets
+const TREE_SETS = [
+    { traversal: "1-3-4-2-5-7-6", corrupted: 4 },
+    { traversal: "5-2-1-3-6-8-7", corrupted: 3 },
+    { traversal: "2-4-7-1-8-5-3", corrupted: 7 },
+    { traversal: "6-3-1-8-4-2-7", corrupted: 8 },
+    { traversal: "4-2-7-9-1-5-3", corrupted: 5 },
+    { traversal: "3-5-8-1-6-9-2", corrupted: 9 },
+    { traversal: "7-4-1-9-2-5-8", corrupted: 1 },
+    { traversal: "5-8-2-6-1-3-9", corrupted: 6 }
+];
+
+// Level 5 - Neural Network - Multiple weight sets
+const NEURAL_WEIGHT_SETS = [
+    { targetAcc: 0.95, l1min: 0.4, l1max: 0.6, l2min: 0.3, l2max: 0.5 },
+    { targetAcc: 0.92, l1min: 0.5, l1max: 0.7, l2min: 0.2, l2max: 0.4 },
+    { targetAcc: 0.89, l1min: 0.3, l1max: 0.5, l2min: 0.4, l2max: 0.6 },
+    { targetAcc: 0.91, l1min: 0.6, l1max: 0.8, l2min: 0.1, l2max: 0.3 },
+    { targetAcc: 0.88, l1min: 0.2, l1max: 0.4, l2min: 0.5, l2max: 0.7 },
+    { targetAcc: 0.93, l1min: 0.3, l1max: 0.6, l2min: 0.3, l2max: 0.6 },
+    { targetAcc: 0.90, l1min: 0.1, l1max: 0.4, l2min: 0.4, l2max: 0.7 },
+    { targetAcc: 0.94, l1min: 0.3, l1max: 0.7, l2min: 0.2, l2max: 0.6 }
+];
+
+// Level 7 - Symbol Sets
+const SYMBOL_SETS = [
+    ["⌬", "⎔", "⏣", "⏥", "⌘", "⍟", "⍰", "⎈"],
+    ["⌘", "⏥", "⍰", "⏣", "⎔", "⍟", "⎈", "⌬"],
+    ["⎈", "⍟", "⌬", "⏣", "⌘", "⎔", "⏥", "⍰"],
+    ["⍰", "⌘", "⎈", "⍟", "⏣", "⎔", "⌬", "⏥"],
+    ["⏥", "⌬", "⍟", "⎈", "⍰", "⌘", "⎔", "⏣"],
+    ["⎔", "⏣", "⏥", "⌬", "⎈", "⍰", "⌘", "⍟"],
+    ["⍟", "⏣", "⎔", "⍰", "⏥", "⌬", "⎈", "⌘"],
+    ["⌬", "⌘", "⍟", "⎈", "⏥", "⏣", "⍰", "⎔"]
+];
+
+const SYMBOL_COMBINATIONS = [
+    ["⎔", "⏣", "⍟", "⎈", "⌘"],
+    ["⏥", "⍰", "⎈", "⏣", "⌬"],
+    ["⍟", "⌘", "⍰", "⎔", "⏥"],
+    ["⎈", "⌬", "⍰", "⌘", "⏣"],
+    ["⌘", "⍟", "⏥", "⎔", "⎈"],
+    ["⎔", "⏥", "⌬", "⍟", "⍰"],
+    ["⍰", "⎔", "⌘", "⏣", "⌬"],
+    ["⌬", "⎈", "⏥", "⌘", "⍟"]
+];
+
+// Level 8 - Pattern Sequence - Multiple sets
+const PATTERN_SETS = [
+    [3, 1, 4, 2, 5, 2, 3],
+    [2, 5, 1, 4, 3, 1, 5],
+    [4, 2, 5, 3, 1, 4, 2],
+    [5, 3, 1, 5, 2, 4, 1],
+    [1, 4, 3, 5, 2, 5, 3],
+    [2, 5, 4, 1, 3, 2, 5],
+    [3, 2, 5, 1, 4, 3, 5],
+    [4, 1, 3, 5, 2, 4, 1]
+];
+
+// Level 9 & 10 - Queue and Stack Operations
+const QUEUE_OPERATION_SETS = [
+    ["enqueue(5)", "enqueue(8)", "dequeue()", "enqueue(2)", "enqueue(7)", "dequeue()"],
+    ["enqueue(3)", "enqueue(9)", "enqueue(1)", "dequeue()", "enqueue(6)", "dequeue()"],
+    ["enqueue(7)", "dequeue()", "enqueue(4)", "enqueue(2)", "dequeue()", "enqueue(8)"],
+    ["enqueue(2)", "enqueue(6)", "enqueue(9)", "dequeue()", "dequeue()", "enqueue(4)"],
+    ["enqueue(8)", "dequeue()", "enqueue(1)", "enqueue(5)", "dequeue()", "enqueue(3)"],
+    ["enqueue(4)", "enqueue(7)", "dequeue()", "enqueue(9)", "dequeue()", "enqueue(2)"],
+    ["enqueue(1)", "enqueue(3)", "dequeue()", "enqueue(8)", "enqueue(5)", "dequeue()"],
+    ["enqueue(6)", "dequeue()", "enqueue(9)", "dequeue()", "enqueue(2)", "enqueue(7)"]
+];
+
+const STACK_OPERATION_SETS = [
+    ["push(4)", "push(7)", "pop()", "push(2)", "push(9)", "pop()"],
+    ["push(6)", "push(1)", "push(8)", "pop()", "push(3)", "pop()"],
+    ["push(5)", "pop()", "push(7)", "push(2)", "pop()", "push(4)"],
+    ["push(3)", "push(8)", "push(1)", "pop()", "pop()", "push(6)"],
+    ["push(9)", "pop()", "push(2)", "push(7)", "pop()", "push(5)"],
+    ["push(2)", "push(5)", "pop()", "push(8)", "pop()", "push(1)"],
+    ["push(7)", "push(4)", "pop()", "push(9)", "push(3)", "pop()"],
+    ["push(8)", "pop()", "push(5)", "pop()", "push(4)", "push(1)"]
+];
+
+// Function to select random set
+function getRandomSetIndex() {
+    return Math.floor(Math.random() * TOTAL_SETS); // We now have 8 sets for each question
+}
+
+// Current selected set (randomly chosen at startup)
+let currentSetIndex = RANDOM_SET_ENABLED ? getRandomSetIndex() : 0;
+
 // Backstory variables
 let currentBackstorySlide = 0;
 let backStoryIsPlaying = true;
@@ -92,14 +198,14 @@ let correctCircuitConfig = [
 ];
 
 // --- CODE DECRYPTION TERMINAL VARS (LEVEL 7 - NEW) ---
-let codeSymbols = ["⌬", "⎔", "⏣", "⏥", "⌘", "⍟", "⍰", "⎈"];
-let correctCodeCombination = ["⎔", "⏣", "⍟", "⎈", "⌘"];
+let codeSymbols = SYMBOL_SETS[currentSetIndex];
+let correctCodeCombination = SYMBOL_COMBINATIONS[currentSetIndex];
 let selectedSymbols = [];
 let maxCodeLength = 5;
 
 // --- PATTERN SEQUENCE VARS (LEVEL 8) ---
 // Modified to be more moderate
-let sequencePattern = [3, 1, 4, 2, 5, 2, 3]; // Longer, more complex sequence
+let sequencePattern = PATTERN_SETS[currentSetIndex]; // Longer, more complex sequence
 let userPattern = [];
 let isDisplayingPattern = false;
 let patternViewButtonUsed = false;
@@ -213,8 +319,8 @@ function setupLevels() {
         {
             levelType: "wordUnscramble",
             dialogue: "NEXUS: \"Remember the override command you created to control me? Now it's scrambled in my systems. Ironic that your own creation blocks your path.\"",
-            scrambledWord: "SUXEN_WNOD",
-            correctWord: "NEXUS_DOWN",
+            scrambledWord: "NXSUE_OWND", // Always use "NEXUS_DOWN"
+            correctWord: "NEXUS_DOWN", // Always use "NEXUS_DOWN"
             awardsKey: "COREKEY_BETA",
             hint: "Rearrange the letters to form the command that would shut down NEXUS - the very command you once created.",
             timerPosition: "timer-pos-default",
@@ -398,7 +504,7 @@ function setupLevels() {
                             <button id="view-correct-sequence-btn" onclick="viewCorrectSequence()" class="cyberpunk-button-small" style="background: linear-gradient(to right, rgba(255, 0, 255, 0.1), rgba(0, 0, 0, 0.7)); border-color: var(--secondary-color); color: var(--secondary-color);">🔒 UNLOCK SEQUENCE</button>
                             <button onclick="checkSymbolCode()" class="cyberpunk-button">DECRYPT</button>
                         </div>
-                        <div id="correct-sequence-display" class="hidden" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:300px; height:100px; background:#000; z-index:100; display:flex; flex-direction:column; justify-content:center; align-items:center; border: 2px solid var(--primary-color); border-radius: 5px;">
+                        <div id="correct-sequence-display" class="hidden" style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:350px; height:120px; background:#000; z-index:1000; display:flex; flex-direction:column; justify-content:center; align-items:center; border: 2px solid var(--primary-color); border-radius: 5px; text-align:center;">
                             <div id="correct-sequence-symbols" style="display:flex; justify-content:center; gap:10px; margin-bottom:10px;"></div>
                             <p style="margin-top:5px; color:var(--warning-color);">Sequence will disappear in <span id="sequence-countdown">8</span> seconds.</p>
                     </div>
@@ -704,6 +810,12 @@ function applyNewColorPalette() {
 
 // Update the initGame function to apply the new color palette
 function initGame() {
+    // Select a random question set
+    if (RANDOM_SET_ENABLED) {
+        currentSetIndex = getRandomSetIndex();
+        console.log(`Game starting with question set #${currentSetIndex + 1}`);
+    }
+    
     setupLevels();
     applyNewColorPalette(); // Apply the new color scheme
     
@@ -1565,7 +1677,7 @@ function checkQuantumCircuit() {
     } else {
         playSound(wrongSound);
         document.getElementById("feedback").innerHTML = "<p class=\"error-text\">Calibration Failed. Quantum Decoherence Detected.</p>";
-        timeRemaining -= 15; updateTimerDisplay();
+        timeRemaining -= 30; updateTimerDisplay();
     }
 }
 
@@ -1723,7 +1835,7 @@ function checkNeuralNetwork() {
     setTimeout(() => {
         const accuracy = calculateNeuralNetworkAccuracy();
         
-        if (accuracy >= targetAccuracy) {
+        if (accuracy >= NEURAL_WEIGHT_SETS[currentSetIndex].targetAcc) {
             collectedKeys[level.awardsKey] = true;
             playSound(correctSound);
             document.getElementById("feedback").innerHTML = "<p class=\"success-text\">Network Converged! Target Accuracy Achieved. Key Fragment Acquired.</p>";
@@ -2566,10 +2678,10 @@ function initPatternMatching(level) {
 }
 
 // Track which letters are placed where in the word unscramble game
-let letterPlacements = Array(10).fill(null);
+let letterPlacements = Array(12).fill(null); // Increased from 10 to 12 to handle longer words
 
 function initWordUnscramble(level) {
-    letterPlacements = Array(10).fill(null); // Reset placements
+    letterPlacements = Array(level.correctWord.length).fill(null); // Reset placements based on word length
     
     const scrambledLettersContainer = document.getElementById("scrambled-letters");
     const answerContainer = document.getElementById("answer-container");
@@ -2692,8 +2804,9 @@ function resetUnscramble() {
         tile.classList.remove("placed");
     });
     
-    // Reset placements
-    letterPlacements = Array(10).fill(null);
+    // Reset placements - use the current level's word length
+    const currentLevelData = gameLevels[currentLevel];
+    letterPlacements = Array(currentLevelData.correctWord.length).fill(null);
     
     // Remove ready state from check button
     document.getElementById("check-unscramble-btn").classList.remove("ready");
@@ -2702,17 +2815,20 @@ function resetUnscramble() {
 function checkUnscramble() {
     const level = gameLevels[currentLevel];
     
-    // Check if all slots are filled
-    if (letterPlacements.includes(null)) {
-        playSound(wrongSound);
-        document.getElementById("feedback").innerHTML = "<p class=\"error-text\">Command incomplete. Fill all letter slots.</p>";
-        return;
+    // Check if all slots corresponding to the word length are filled
+    const wordLength = level.correctWord.length;
+    for (let i = 0; i < wordLength; i++) {
+        if (letterPlacements[i] === null) {
+            playSound(wrongSound);
+            document.getElementById("feedback").innerHTML = "<p class=\"error-text\">Command incomplete. Fill all letter slots.</p>";
+            return;
+        }
     }
     
     playSound(clickSound);
     
-    // Get user's answer
-    const userWord = letterPlacements.join("");
+    // Get user's answer - only take elements that correspond to the word length
+    const userWord = letterPlacements.slice(0, wordLength).join("");
     
     // Check if it matches the correct word
     if (userWord === level.correctWord) {
@@ -3535,14 +3651,14 @@ function initializeCodeDecryptionTerminal(level) {
     const viewSequenceBtn = document.getElementById("view-correct-sequence-btn");
     if (viewSequenceBtn) {
         if (viewSequenceButtonUsed) {
-            viewSequenceBtn.disabled = true;
-            viewSequenceBtn.style.opacity = "0.5";
-            viewSequenceBtn.textContent = "SEQUENCE VIEWED";
-            viewSequenceBtn.style.cursor = "not-allowed";
+            viewSequenceBtn.disabled = false;
+            viewSequenceBtn.style.opacity = "1";
+            viewSequenceBtn.textContent = "VIEW AGAIN (-2:00)";
+            viewSequenceBtn.style.cursor = "pointer";
         } else {
             viewSequenceBtn.disabled = false;
             viewSequenceBtn.style.opacity = "1";
-            viewSequenceBtn.innerHTML = "🔒 UNLOCK SEQUENCE";
+            viewSequenceBtn.innerHTML = "🔒 VIEW SEQUENCE (-2:00)";
             viewSequenceBtn.style.cursor = "pointer";
         }
     }
@@ -3550,16 +3666,67 @@ function initializeCodeDecryptionTerminal(level) {
 
 // View the correct sequence using the COREKEY_BETA
 function viewCorrectSequence() {
-    // Check if it has already been used
+    // Key is not needed for the second view
     if (viewSequenceButtonUsed) {
-        showFeedback("Sequence has already been viewed. Only one view permitted.", "error");
+        showFeedback("This will cost an additional 2-minute time penalty. Are you sure?", "warning");
+        
+        // Create a modal for confirmation
+        const confirmationModal = document.createElement("div");
+        confirmationModal.className = "centered-modal";
+        confirmationModal.style.position = "fixed";
+        confirmationModal.style.top = "50%";
+        confirmationModal.style.left = "50%";
+        confirmationModal.style.transform = "translate(-50%, -50%)";
+        confirmationModal.style.zIndex = "1000";
+        confirmationModal.style.backgroundColor = "rgba(0, 0, 0, 0.9)";
+        confirmationModal.style.padding = "20px";
+        confirmationModal.style.border = "2px solid var(--primary-color)";
+        confirmationModal.style.boxShadow = "0 0 20px var(--primary-color)";
+        confirmationModal.style.borderRadius = "5px";
+        confirmationModal.style.width = "400px";
+        confirmationModal.style.maxWidth = "90%";
+        confirmationModal.style.textAlign = "center";
+        confirmationModal.innerHTML = `
+            <div class="centered-modal-content">
+                <h3 style="color: var(--warning-color); text-align: center; margin-bottom: 15px;">Confirm Second View</h3>
+                <p style="color: var(--text-color); text-align: center; margin-bottom: 20px;">Viewing the sequence again will cost you another 2 minutes of time.</p>
+                <div style="display: flex; justify-content: center; gap: 15px;">
+                    <button id="confirm-view-btn" class="cyberpunk-button">CONFIRM (-2:00)</button>
+                    <button id="cancel-view-btn" class="cyberpunk-button-small">CANCEL</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(confirmationModal);
+        
+        // Add event listeners
+        document.getElementById("confirm-view-btn").addEventListener("click", function() {
+            // Remove the modal
+            document.body.removeChild(confirmationModal);
+            
+            // Apply 2-minute time penalty
+            penalizeTime(120);
+            
+            // Play unlock sound
+            playSound(keyUnlockSound);
+            
+            // Show the correct sequence
+            showCorrectSymbols();
+        });
+        
+        document.getElementById("cancel-view-btn").addEventListener("click", function() {
+            // Remove the modal
+            document.body.removeChild(confirmationModal);
+            showFeedback("Second viewing canceled.", "neutral");
+        });
+        
         return;
     }
     
-    // Required key name
+    // First time viewing requires a key
     const requiredKey = "COREKEY_BETA";
     
-    showFeedback(`This action requires ${requiredKey}. Select the key from your inventory.`, "neutral");
+    showFeedback(`This action requires ${requiredKey} and will cost a 2-minute time penalty. Select the key from your inventory.`, "neutral");
     
     // Show key selection modal
     showKeyOptions(requiredKey, function(success) {
@@ -3567,19 +3734,30 @@ function viewCorrectSequence() {
             // Mark as used
             viewSequenceButtonUsed = true;
             
-            // Disable the button and change its appearance
+            // Update the button for second view
             const viewSequenceBtn = document.getElementById("view-correct-sequence-btn");
             if (viewSequenceBtn) {
-                viewSequenceBtn.disabled = true;
-                viewSequenceBtn.style.opacity = "0.5";
-                viewSequenceBtn.textContent = "SEQUENCE VIEWED";
-                viewSequenceBtn.style.cursor = "not-allowed";
+                viewSequenceBtn.textContent = "VIEW AGAIN (-2:00)";
+                viewSequenceBtn.style.opacity = "1";
+                viewSequenceBtn.style.cursor = "pointer";
             }
+            
+            // No penalty for first time viewing
             
             // Play unlock sound
             playSound(keyUnlockSound);
             
             // Show the correct sequence
+            showCorrectSymbols();
+        } else {
+            // User canceled or failed key selection
+            showFeedback("Key selection canceled. Sequence remains locked.", "neutral");
+        }
+    });
+}
+
+// Helper function to show the correct symbols
+function showCorrectSymbols() {
             const correctSequenceDisplay = document.getElementById("correct-sequence-display");
             const symbolsContainer = document.getElementById("correct-sequence-symbols");
             const countdownElement = document.getElementById("sequence-countdown");
@@ -3620,11 +3798,6 @@ function viewCorrectSequence() {
                     }
                 }, 1000);
             }
-        } else {
-            // User canceled or failed key selection
-            showFeedback("Key selection canceled. Sequence remains locked.", "neutral");
-        }
-    });
 }
 
 // Select a symbol for the code
@@ -3872,13 +4045,15 @@ function initializePatternSequence(level) {
     const showPatternBtn = document.getElementById("show-pattern-btn");
     if (showPatternBtn) {
         if (patternViewButtonUsed) {
-            showPatternBtn.disabled = true;
-            showPatternBtn.textContent = "PATTERN VIEWED";
-            showPatternBtn.style.opacity = "0.5";
-            showPatternBtn.style.cursor = "not-allowed";
-        } else {
-            showPatternBtn.innerHTML = "🔒 UNLOCK PATTERN";
             showPatternBtn.disabled = false;
+            showPatternBtn.textContent = "VIEW AGAIN (-2:00)";
+            showPatternBtn.style.opacity = "1";
+            showPatternBtn.style.cursor = "pointer";
+        } else {
+            showPatternBtn.innerHTML = "🔒 VIEW PATTERN (-2:00)";
+            showPatternBtn.disabled = false;
+            showPatternBtn.style.opacity = "1";
+            showPatternBtn.style.cursor = "pointer";
         }
     }
     
@@ -3891,9 +4066,64 @@ function initializePatternSequence(level) {
 
 // Display the pattern sequence - now requires NEURAL_KEY_GAMMA
 function showPatternSequence() {
-    // Check if it has already been used
+    // Key is not needed for the second view
     if (patternViewButtonUsed) {
-        showFeedback("Pattern has already been viewed. Only one view permitted.", "error");
+        // If already displaying, don't allow another click
+        if (isDisplayingPattern) return;
+        
+        showFeedback("This will cost an additional 2-minute time penalty. Are you sure?", "warning");
+        
+        // Create a modal for confirmation
+        const confirmationModal = document.createElement("div");
+        confirmationModal.className = "centered-modal";
+        confirmationModal.style.position = "fixed";
+        confirmationModal.style.top = "50%";
+        confirmationModal.style.left = "50%";
+        confirmationModal.style.transform = "translate(-50%, -50%)";
+        confirmationModal.style.zIndex = "1000";
+        confirmationModal.style.backgroundColor = "rgba(0, 0, 0, 0.9)";
+        confirmationModal.style.padding = "20px";
+        confirmationModal.style.border = "2px solid var(--primary-color)";
+        confirmationModal.style.boxShadow = "0 0 20px var(--primary-color)";
+        confirmationModal.style.borderRadius = "5px";
+        confirmationModal.style.width = "400px";
+        confirmationModal.style.maxWidth = "90%";
+        confirmationModal.style.textAlign = "center";
+        confirmationModal.innerHTML = `
+            <div class="centered-modal-content">
+                <h3 style="color: var(--warning-color); text-align: center; margin-bottom: 15px;">Confirm Second View</h3>
+                <p style="color: var(--text-color); text-align: center; margin-bottom: 20px;">Viewing the pattern again will cost you another 2 minutes of time.</p>
+                <div style="display: flex; justify-content: center; gap: 15px;">
+                    <button id="confirm-pattern-view-btn" class="cyberpunk-button">CONFIRM (-2:00)</button>
+                    <button id="cancel-pattern-view-btn" class="cyberpunk-button-small">CANCEL</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(confirmationModal);
+        
+        // Add event listeners
+        document.getElementById("confirm-pattern-view-btn").addEventListener("click", function() {
+            // Remove the modal
+            document.body.removeChild(confirmationModal);
+            
+            // Apply 2-minute time penalty
+            penalizeTime(120);
+            
+            // Play sound effects
+            playSound(keyUnlockSound);
+            playSound(clickSound);
+            
+            // Show the pattern
+            displayPatternSequence();
+        });
+        
+        document.getElementById("cancel-pattern-view-btn").addEventListener("click", function() {
+            // Remove the modal
+            document.body.removeChild(confirmationModal);
+            showFeedback("Second viewing canceled.", "neutral");
+        });
+        
         return;
     }
     
@@ -3902,11 +4132,13 @@ function showPatternSequence() {
     
     const requiredKey = "NEURAL_KEY_GAMMA";
     
-    showFeedback(`This action requires ${requiredKey}. Select the key from your inventory.`, "neutral");
+    showFeedback(`This action requires ${requiredKey} and will cost a 2-minute time penalty. Select the key from your inventory.`, "neutral");
     
     // Show key selection modal
     showKeyOptions(requiredKey, function(success) {
         if (success) {
+            // No penalty for first time viewing
+            
             // Play unlock sound
             playSound(keyUnlockSound);
     playSound(clickSound);
@@ -3914,15 +4146,26 @@ function showPatternSequence() {
             // Mark as used
             patternViewButtonUsed = true;
             
-            // Update button
+            // Update button for second view
             const showPatternBtn = document.getElementById("show-pattern-btn");
             if (showPatternBtn) {
-                showPatternBtn.disabled = true;
-                showPatternBtn.textContent = "PATTERN VIEWED";
-                showPatternBtn.style.opacity = "0.5";
-                showPatternBtn.style.cursor = "not-allowed";
+                showPatternBtn.textContent = "VIEW AGAIN (-2:00)";
+                showPatternBtn.disabled = false;
+                showPatternBtn.style.opacity = "1";
+                showPatternBtn.style.cursor = "pointer";
             }
             
+            // Show the pattern
+            displayPatternSequence();
+        } else {
+            // User canceled or failed key selection
+            showFeedback("Key selection canceled. Pattern remains locked.", "neutral");
+        }
+    });
+}
+
+// Helper function to display the pattern sequence
+function displayPatternSequence() {
             // Now show the pattern
             isDisplayingPattern = true;
             
@@ -3970,11 +4213,6 @@ function showPatternSequence() {
             };
             
             showNext();
-        } else {
-            // User canceled or failed key selection
-            showFeedback("Key selection canceled. Pattern remains locked.", "neutral");
-        }
-    });
 }
 
 // Add user selection to pattern
@@ -4482,6 +4720,10 @@ function viewOriginalImage() {
         return;
     }
     
+    // Apply 1-minute time penalty
+    penalizeTime(60);
+    showFeedback("Applied 1-minute time penalty for viewing the original image.", "warning");
+    
     // Play sound for button click
     playSound(clickSound);
     
@@ -4532,7 +4774,7 @@ function viewOriginalImage() {
 
 // --- LEVEL 9 QUEUE IMPLEMENTATION VARS ---
 let queueArray = [];
-let queueOperations = ["enqueue(5)", "enqueue(8)", "dequeue()", "enqueue(2)", "enqueue(7)", "dequeue()"];
+let queueOperations = QUEUE_OPERATION_SETS[currentSetIndex];
 let currentQueueOperationIndex = 0;
 let queueLocked = true;
 
@@ -4841,7 +5083,7 @@ function checkQueueCompletion() {
 
 // --- LEVEL 10 STACK IMPLEMENTATION VARS ---
 let stackArray = [];
-let stackOperations = ["push(9)", "push(3)", "pop()", "push(6)", "push(1)", "pop()", "pop()"];
+let stackOperations = STACK_OPERATION_SETS[currentSetIndex];
 let currentStackOperationIndex = 0;
 let stackLocked = true;
 
@@ -5690,16 +5932,113 @@ function setupGameProtections() {
 // Add functions to track form submissions and set feedback as submitted
 function openWinnerForm() {
     const completionTime = calculateCompletionTime();
-    const formUrl = `https://docs.google.com/forms/d/e/1FAIpQLSeB5cOYN0C1DyZpgXamEHwUn_rsj34Hb2sSheRhLrXrHSs7RQ/viewform?usp=pp_url&entry.714344147=${completionTime}`;
-    window.feedbackSubmitted = true; // Mark feedback as submitted
-    window.open(formUrl, '_blank');
+    openGoogleFormModal(true, completionTime);
 }
 
 function openParticipantForm() {
     const timeSpent = calculateCompletionTime();
-    const formUrl = `https://docs.google.com/forms/d/e/1FAIpQLSdwQOOG-MaKcxMUREzZG7zCqDD72kyOsMXGXXBs6QxtjXx8Rg/viewform?usp=pp_url&entry.1667497717=${timeSpent}`;
-    window.feedbackSubmitted = true; // Mark feedback as submitted
-    window.open(formUrl, '_blank');
+    openGoogleFormModal(false, timeSpent);
+}
+
+// Open Google Form in a modal
+function openGoogleFormModal(isWinner, timeData) {
+    // Create modal container
+    const feedbackModal = document.createElement("div");
+    feedbackModal.className = "feedback-modal";
+    feedbackModal.style.position = "fixed";
+    feedbackModal.style.top = "0";
+    feedbackModal.style.left = "0";
+    feedbackModal.style.width = "100%";
+    feedbackModal.style.height = "100%";
+    feedbackModal.style.backgroundColor = "rgba(0, 0, 0, 0.9)";
+    feedbackModal.style.zIndex = "10000";
+    feedbackModal.style.display = "flex";
+    feedbackModal.style.justifyContent = "center";
+    feedbackModal.style.alignItems = "center";
+    
+    // Create iframe container
+    const formContainer = document.createElement("div");
+    formContainer.className = "form-container";
+    formContainer.style.width = "800px";
+    formContainer.style.height = "80vh";
+    formContainer.style.maxWidth = "90%";
+    formContainer.style.backgroundColor = "rgba(30, 30, 45, 0.95)";
+    formContainer.style.borderRadius = "8px";
+    formContainer.style.border = "2px solid var(--primary-color)";
+    formContainer.style.boxShadow = "0 0 30px var(--primary-color)";
+    formContainer.style.padding = "25px";
+    formContainer.style.position = "relative";
+    
+    // Add header
+    const formHeader = document.createElement("div");
+    formHeader.style.textAlign = "center";
+    formHeader.style.marginBottom = "20px";
+    
+    const formTitle = document.createElement("h2");
+    formTitle.style.color = isWinner ? "var(--primary-color)" : "var(--warning-color)";
+    formTitle.style.marginBottom = "10px";
+    formTitle.style.fontFamily = "'Orbitron', sans-serif";
+    formTitle.textContent = isWinner ? "Mission Complete: Echo Trap" : "Mission Status: Echo Trap";
+    
+    const formSubtitle = document.createElement("p");
+    formSubtitle.style.color = "var(--text-color)";
+    formSubtitle.style.fontSize = "14px";
+    formSubtitle.textContent = isWinner 
+        ? `Congratulations! You completed the mission in ${timeData}.` 
+        : `You spent ${timeData} in the simulation.`;
+    
+    formHeader.appendChild(formTitle);
+    formHeader.appendChild(formSubtitle);
+    
+    // Create iframe for Google Form
+    const iframe = document.createElement("iframe");
+    iframe.style.width = "100%";
+    iframe.style.height = "calc(100% - 100px)";
+    iframe.style.border = "none";
+    iframe.style.borderRadius = "5px";
+    
+    // Use different form URLs based on whether player won or lost with time prefill
+    const winnerFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLSeB5cOYN0C1DyZpgXamEHwUn_rsj34Hb2sSheRhLrXrHSs7RQ/viewform";
+    const participantFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdwQOOG-MaKcxMUREzZG7zCqDD72kyOsMXGXXBs6QxtjXx8Rg/viewform";
+    
+    // Build the URL with prefilled time
+    let googleFormUrl = "";
+    if (isWinner) {
+        googleFormUrl = `${winnerFormUrl}?usp=pp_url&entry.714344147=${encodeURIComponent(timeData)}`;
+    } else {
+        googleFormUrl = `${participantFormUrl}?usp=pp_url&entry.1667497717=${encodeURIComponent(timeData)}`;
+    }
+    
+    iframe.src = googleFormUrl;
+    
+    // Add close button
+    const closeButton = document.createElement("button");
+    closeButton.textContent = "× CLOSE";
+    closeButton.className = "cyberpunk-button-small";
+    closeButton.style.position = "absolute";
+    closeButton.style.top = "15px";
+    closeButton.style.right = "15px";
+    closeButton.style.padding = "5px 10px";
+    closeButton.style.backgroundColor = "rgba(0,0,0,0.5)";
+    closeButton.style.border = "1px solid var(--warning-color)";
+    closeButton.style.color = "var(--warning-color)";
+    closeButton.style.cursor = "pointer";
+    closeButton.style.borderRadius = "4px";
+    
+    closeButton.onclick = function() {
+        document.body.removeChild(feedbackModal);
+        // Mark feedback as submitted after closing
+        window.feedbackSubmitted = true;
+    };
+    
+    // Assemble the modal
+    formContainer.appendChild(formHeader);
+    formContainer.appendChild(iframe);
+    formContainer.appendChild(closeButton);
+    feedbackModal.appendChild(formContainer);
+    
+    // Add modal to body
+    document.body.appendChild(feedbackModal);
 }
 
 // Call initGame with protection setup
@@ -5715,4 +6054,71 @@ document.addEventListener("DOMContentLoaded", function() {
             return ""; // Required for browser compatibility
         }
     };
+
+function showFeedbackFormModal(formUrl) {
+    // Remove any existing modal
+    const existing = document.getElementById("feedback-form-modal");
+    if (existing) existing.remove();
+
+    // Create modal overlay
+    const modal = document.createElement("div");
+    modal.id = "feedback-form-modal";
+    modal.style.position = "fixed";
+    modal.style.top = "0";
+    modal.style.left = "0";
+    modal.style.width = "100vw";
+    modal.style.height = "100vh";
+    modal.style.background = "rgba(0,0,0,0.95)";
+    modal.style.zIndex = "10000";
+    modal.style.display = "flex";
+    modal.style.justifyContent = "center";
+    modal.style.alignItems = "center";
+
+    // Modal content container
+    const content = document.createElement("div");
+    content.style.background = "#111";
+    content.style.border = "3px solid var(--primary-color)";
+    content.style.borderRadius = "10px";
+    content.style.boxShadow = "0 0 30px var(--primary-color)";
+    content.style.width = "90vw";
+    content.style.maxWidth = "700px";
+    content.style.height = "80vh";
+    content.style.display = "flex";
+    content.style.flexDirection = "column";
+    content.style.alignItems = "center";
+    content.style.position = "relative";
+
+    // Close button
+    const closeBtn = document.createElement("button");
+    closeBtn.textContent = "CLOSE";
+    closeBtn.className = "cyberpunk-button-small";
+    closeBtn.style.position = "absolute";
+    closeBtn.style.top = "10px";
+    closeBtn.style.right = "10px";
+    closeBtn.onclick = () => modal.remove();
+
+    // Iframe for Google Form
+    const iframe = document.createElement("iframe");
+    iframe.src = formUrl;
+    iframe.style.width = "100%";
+    iframe.style.height = "100%";
+    iframe.style.border = "none";
+    iframe.style.borderRadius = "8px";
+    iframe.allow = "fullscreen";
+
+    // Add elements
+    content.appendChild(closeBtn);
+    content.appendChild(iframe);
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+}
+
+// Functions for HTML button connections
+function submitWinnerFeedback() {
+    openWinnerForm();
+}
+
+function submitParticipantFeedback() {
+    openParticipantForm();
+}
 
